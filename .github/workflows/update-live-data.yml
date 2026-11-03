@@ -1,0 +1,47 @@
+name: Update live data
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-live-data
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Fetch Twitch and YouTube data
+        env:
+          TWITCH_CLIENT_ID: ${{ secrets.TWITCH_CLIENT_ID }}
+          TWITCH_CLIENT_SECRET: ${{ secrets.TWITCH_CLIENT_SECRET }}
+        run: node scripts/update-live-data.mjs
+
+      - name: Commit data changes
+        run: |
+          if [ -z "$(git status --porcelain -- data/live.json data/clips.json assets/thumbs)" ]; then
+            echo "No data changes to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/live.json data/clips.json assets/thumbs
+          if git diff --cached --quiet; then
+            echo "No staged data changes."
+            exit 0
+          fi
+          git commit -m "Update live and clip data"
+          git push
