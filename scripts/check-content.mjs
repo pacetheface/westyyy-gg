@@ -105,16 +105,18 @@ if (config.discordInvite === "" && !(await readFile(join(root, "links/index.html
 
 const css = await readFile(join(root, "css/styles.css"), "utf8");
 const allowed = new Set([
+  "#0B1411",
+  "#17241F",
+  "#1E2C27",
+  "#31443C",
+  "#F3F6F2",
+  "#9AADA3",
   "#015D47",
-  "#01382B",
   "#FD650A",
-  "#E45C08",
   "#E0F354",
   "#D4E44A",
   "#C6D63A",
-  "#1A140C",
-  "#F4F1E6",
-  "#D5E0D2"
+  "#12110C"
 ]);
 for (const match of css.matchAll(/#[0-9A-Fa-f]{3,8}/g)) {
   const value = match[0];

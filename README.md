@@ -72,18 +72,20 @@ Defined once in `css/styles.css`.
 
 | Token | Hex | Use |
 | --- | --- | --- |
-| `--green` | `#015D47` | Page background, forest green |
-| `--green-deep` | `#01382B` | Footer, cards, solid green blocks |
-| `--orange` | `#FD650A` | Mandarin blocks |
-| `--orange-hover` | `#E45C08` | Pressed state on an orange control |
-| `--yellow` | `#E0F354` | Crest yellow: wordmark, headlines on green, live badge, buttons |
-| `--yellow-hover` | `#D4E44A` | Button and link hover |
+| `--bg` | `#0B1411` | Page background, near-black with a green cast |
+| `--surface` | `#17241F` | Cards |
+| `--surface-2` | `#1E2C27` | Raised chips, such as the current nav item |
+| `--line` | `#31443C` | Hairline borders |
+| `--text` | `#F3F6F2` | Off-white body and headlines |
+| `--muted` | `#9AADA3` | Secondary text |
+| `--green` | `#015D47` | Soft glow behind the hero and section headings |
+| `--orange` | `#FD650A` | Soft glow on cards and the next stream |
+| `--yellow` | `#E0F354` | Live badge, primary buttons, hover and focus |
+| `--yellow-hover` | `#D4E44A` | Button hover |
 | `--yellow-press` | `#C6D63A` | Button press |
-| `--ink` | `#1A140C` | Text on orange and on yellow |
-| `--cream` | `#F4F1E6` | Body text on green |
-| `--cream-muted` | `#D5E0D2` | Secondary text on green |
+| `--ink` | `#12110C` | Text on yellow |
 
-Yellow is not used as text on orange, and orange is not used as text on green. Those pairs are below WCAG AA. Headlines on orange blocks are ink. Headlines on green are yellow.
+Forest green and mandarin sit in the glows, not in solid page blocks. Crest yellow is only the live badge, the primary buttons, and hover or focus.
 
 ## Editing rules
 
