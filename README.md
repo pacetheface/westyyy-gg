@@ -6,7 +6,7 @@ One-page coming soon site. Static files at the repo root, for GitHub Pages later
 
 Edit `assets/config.js`. Each social link is `base` plus `handle`, so a handle can be swapped without rewriting the page.
 
-Twitch and Instagram use `westyyy__rl`. TikTok, YouTube, and X use `westyyywest` until those profiles move.
+Twitch, Instagram, TikTok, YouTube, and X all use `westyyy__rl`.
 
 The contact address in that same file is `dad@westyyy.gg`.
 
