@@ -129,11 +129,22 @@ a.wordmark {
   background: var(--orange);
 }
 
-.tagline {
+.bio {
   margin: 0 auto;
-  max-width: 28rem;
+  max-width: 34rem;
+  color: var(--text);
+  font-size: 1.05rem;
+  line-height: 1.45;
+}
+
+.bio p {
+  margin: 0.12rem 0;
+}
+
+.soon {
+  margin: 0.95rem 0 0;
   color: var(--muted);
-  font-size: clamp(1.15rem, 2vw, 1.45rem);
+  font-size: 0.95rem;
 }
 
 .social-list {
