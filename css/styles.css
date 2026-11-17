@@ -62,7 +62,7 @@ body {
   flex-direction: column;
   background-color: var(--bg);
   background-image:
-    radial-gradient(860px 520px at 8% -8%, color-mix(in srgb, var(--green) 72%, transparent), transparent 68%),
+    radial-gradient(720px 420px at 50% 0%, color-mix(in srgb, var(--green) 70%, transparent), transparent 70%),
     radial-gradient(720px 460px at 100% 0%, color-mix(in srgb, var(--orange) 34%, transparent), transparent 70%),
     radial-gradient(540px 380px at 72% 108%, color-mix(in srgb, var(--green) 40%, transparent), transparent 72%);
   background-attachment: fixed;
@@ -324,25 +324,6 @@ hr.rule {
 .page-intro {
   position: relative;
   padding: 2.2rem 0 2.4rem;
-}
-
-.hero-copy::before,
-.page-intro::before {
-  content: "";
-  position: absolute;
-  z-index: 0;
-  width: min(460px, 70%);
-  height: 220px;
-  left: 0;
-  top: 0;
-  background: radial-gradient(circle, color-mix(in srgb, var(--green) 55%, transparent), transparent 70%);
-  pointer-events: none;
-}
-
-.hero-copy > *,
-.page-intro > * {
-  position: relative;
-  z-index: 1;
 }
 
 .lede {

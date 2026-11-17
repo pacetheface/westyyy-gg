@@ -505,14 +505,79 @@ async function configTask() {
   }
 }
 
-async function liveTask() {
+const UPTIME_URL = "https://decapi.me/twitch/uptime/westyyy__rl";
+
+function clearLive() {
+  const root = document.getElementById("live-badge");
+  const slot = document.getElementById("live-player");
+  if (root) root.replaceChildren();
+  if (slot && !slot.querySelector("iframe")) slot.replaceChildren();
+}
+
+function showLive(uptime) {
   const root = document.getElementById("live-badge");
   if (!root) return;
-  try {
-    renderLive(await loadJson("/data/live.json"));
-  } catch {
-    root.replaceChildren();
+  let badge = root.querySelector(".badge");
+  let detail = root.querySelector(".live-detail");
+  if (!badge) {
+    badge = document.createElement("p");
+    badge.className = "badge";
+    badge.textContent = "LIVE now";
+    root.append(badge);
   }
+  if (!detail) {
+    detail = document.createElement("p");
+    detail.className = "live-detail";
+    root.append(detail);
+  }
+  detail.textContent = uptime;
+
+  const slot = document.getElementById("live-player");
+  if (!slot || slot.querySelector("iframe") || slot.querySelector("button")) return;
+  const note = document.createElement("p");
+  note.className = "embed-note";
+  note.textContent = "Loading the player contacts Twitch and sends your IP address to Twitch.";
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "button";
+  button.textContent = "Load live player";
+  button.addEventListener("click", () => {
+    const frame = document.createElement("iframe");
+    frame.className = "player";
+    frame.title = "Live stream on Twitch";
+    frame.allowFullscreen = true;
+    frame.allow = "autoplay; fullscreen; encrypted-media; picture-in-picture";
+    frame.referrerPolicy = "strict-origin-when-cross-origin";
+    const parent = window.location.hostname || "localhost";
+    frame.src = `https://player.twitch.tv/?channel=westyyy__rl&parent=${encodeURIComponent(parent)}&autoplay=true`;
+    slot.replaceChildren(frame);
+  });
+  slot.replaceChildren(note, button);
+}
+
+async function checkUptime() {
+  if (!document.getElementById("live-badge")) return;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 8000);
+  try {
+    const response = await fetch(UPTIME_URL, { signal: controller.signal, cache: "no-store" });
+    if (!response.ok) throw new Error("status");
+    const text = (await response.text()).replace(/\s+/g, " ").trim();
+    if (!text || /offline/i.test(text) || text.length > 80 || /[<>]/.test(text)) {
+      clearLive();
+      return;
+    }
+    showLive(text);
+  } catch {
+    clearLive();
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function liveTask() {
+  checkUptime();
+  setInterval(checkUptime, 120000);
 }
 
 async function scheduleTask() {
@@ -569,47 +634,12 @@ async function clipsTask() {
   }
 }
 
-function renderKit(kit, config) {
-  const root = document.getElementById("media-kit");
-  if (!root || !kit) return;
-  const list = document.createElement("ul");
-  list.className = "stats";
-  const handles = config && config.handles && typeof config.handles === "object" ? config.handles : {};
-  const labels = { twitch: "Twitch", instagram: "Instagram", tiktok: "TikTok", youtube: "YouTube", x: "X" };
-  for (const [name, handle] of Object.entries(handles)) {
-    if (typeof handle !== "string" || !handle.trim()) continue;
-    const item = document.createElement("li");
-    item.textContent = `${labels[name] || name}: ${handle.trim()}`;
-    list.append(item);
-  }
-  for (const stat of kit.stats || []) {
-    if (!stat || typeof stat.label !== "string" || typeof stat.value !== "string") continue;
-    const item = document.createElement("li");
-    item.className = "placeholder";
-    item.textContent = `${stat.label}: ${stat.value}`;
-    list.append(item);
-  }
-  if (list.childElementCount) root.replaceChildren(list);
-}
-
 async function sponsorsTask() {
-  const kitRoot = document.getElementById("media-kit");
-  if (document.getElementById("sponsor-list")) {
-    try {
-      renderSponsors(await loadJson("/data/sponsors.json"));
-    } catch {
-      // The empty state in the HTML stays in place.
-    }
-  }
-  if (!kitRoot) return;
+  if (!document.getElementById("sponsor-list")) return;
   try {
-    const [kit, config] = await Promise.all([
-      loadJson("/data/kit.json"),
-      loadJson("/data/site.json").catch(() => null)
-    ]);
-    renderKit(kit, config);
+    renderSponsors(await loadJson("/data/sponsors.json"));
   } catch {
-    // The placeholder copy in the HTML stays in place.
+    // The empty state in the HTML stays in place.
   }
 }
 

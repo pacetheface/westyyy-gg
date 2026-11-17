@@ -44,24 +44,9 @@ The age on the home and about pages is written as 10. Change it by hand when it 
 
 ## Live data
 
-`.github/workflows/update-live-data.yml` runs about every 10 minutes, and it can also be started by hand.
+Whether a stream is live is checked in the browser, on load and about every two minutes, at `https://decapi.me/twitch/uptime/westyyy__rl`. A reply that says offline, or any error or timeout, leaves the Watch on Twitch button with no live badge. A live reply shows “LIVE now” and the uptime. No Twitch API secret is required.
 
-It reads Twitch with the Helix API (app token, client credentials) and the public YouTube RSS feed. It writes `data/live.json`, `data/clips.json`, and copies thumbnails into `assets/thumbs/` so the browser does not request those images from Twitch or YouTube.
-
-Repository secrets, under Settings → Secrets and variables → Actions:
-
-- `TWITCH_CLIENT_ID`
-- `TWITCH_CLIENT_SECRET`
-
-Create them in the Twitch developer console for an application that can use the client-credentials grant. No user token is required.
-
-If either secret is missing, the script skips Twitch and leaves `data/live.json` offline. The page keeps the Watch on Twitch button and does not show a live badge. YouTube videos and Shorts still update from the public RSS feeds, which do not need a key.
-
-`data/kit.json` holds partnership lines and follower placeholders. Replace each `[TO FILL]` value when the number is known. Do not invent counts.
-
-The workflow commits only when the live fields, the clip list, or a thumbnail actually change. A new timestamp alone does not create a commit. While a stream is live, the viewer count can change often enough to commit on later runs.
-
-The checked-in `data/live.json` is offline. `data/examples/live-online.json` is only a sample for screenshots. The site does not load it.
+`.github/workflows/update-live-data.yml` still runs about every 10 minutes for the public YouTube and Shorts feeds only. It writes `data/clips.json` and copies thumbnails into `assets/thumbs/`. It commits only when that data changes.
 
 ## Privacy
 
