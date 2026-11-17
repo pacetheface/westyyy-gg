@@ -108,12 +108,12 @@ function renderLive(data) {
   root.replaceChildren();
   if (!data || typeof data.live !== "boolean") return;
 
-  const badge = document.createElement("p");
-  badge.className = data.live ? "badge" : "badge is-offline";
-  badge.textContent = data.live ? "Live" : "Offline";
-  root.append(badge);
-
   if (!data.live) return;
+
+  const badge = document.createElement("p");
+  badge.className = "badge";
+  badge.textContent = "LIVE now";
+  root.append(badge);
 
   const parts = [];
   if (typeof data.title === "string" && data.title.trim()) parts.push(data.title.trim());
@@ -128,11 +128,27 @@ function renderLive(data) {
     root.append(detail);
   }
 
-  const watch = document.createElement("a");
-  watch.className = "button";
-  watch.href = "https://twitch.tv/westyyy__rl";
-  watch.textContent = "Watch";
-  root.append(watch);
+  const slot = document.getElementById("live-player");
+  if (!slot) return;
+  const note = document.createElement("p");
+  note.className = "embed-note";
+  note.textContent = "Loading the player contacts Twitch and sends your IP address to Twitch.";
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "button";
+  button.textContent = "Load live player";
+  button.addEventListener("click", () => {
+    const frame = document.createElement("iframe");
+    frame.className = "player";
+    frame.title = "Live stream on Twitch";
+    frame.allowFullscreen = true;
+    frame.allow = "autoplay; fullscreen; encrypted-media; picture-in-picture";
+    frame.referrerPolicy = "strict-origin-when-cross-origin";
+    const parent = window.location.hostname || "localhost";
+    frame.src = `https://player.twitch.tv/?channel=westyyy__rl&parent=${encodeURIComponent(parent)}&autoplay=true`;
+    slot.replaceChildren(frame);
+  });
+  slot.replaceChildren(note, button);
 }
 
 function timeLine(label, item, zone) {
@@ -407,6 +423,13 @@ function clipCard(item) {
   return article;
 }
 
+function emptyLine(text) {
+  const paragraph = document.createElement("p");
+  paragraph.className = "empty";
+  paragraph.textContent = text;
+  return paragraph;
+}
+
 function renderHomeClips(root, items) {
   if (!items.length) {
     const empty = document.createElement("p");
@@ -495,12 +518,16 @@ async function liveTask() {
 async function scheduleTask() {
   const next = document.getElementById("next-stream");
   const page = document.getElementById("schedule-root");
-  if (!next && !page) return;
+  const section = document.getElementById("schedule-section");
   try {
     const model = buildSchedule(await loadJson("/data/schedule.json"), new Date());
+    const hasSlots = model.weekly.length + model.oneOff.length > 0;
+    if (hasSlots) document.documentElement.dataset.schedule = "open";
+    if (section) section.hidden = !hasSlots;
     if (next) renderNext(model);
     if (page) renderSchedulePage(model);
   } catch {
+    if (section) section.hidden = true;
     const message = document.createElement("p");
     message.textContent = "The schedule could not be loaded.";
     if (next) next.replaceChildren(message.cloneNode(true));
@@ -512,11 +539,23 @@ async function clipsTask() {
   const home = document.getElementById("home-clips");
   const youtube = document.getElementById("youtube-clips");
   const twitch = document.getElementById("twitch-clips");
-  if (!home && !youtube && !twitch) return;
+  const latestRoot = document.getElementById("latest-youtube");
+  const shortsRoot = document.getElementById("shorts-row");
+  if (!home && !youtube && !twitch && !latestRoot && !shortsRoot) return;
   try {
     const data = await loadJson("/data/clips.json");
     const yt = normalizeClips(data.youtube, "youtube").sort(byNewest);
+    const shorts = normalizeClips(data.shorts, "youtube").sort(byNewest);
     const tw = normalizeClips(data.twitch, "twitch").sort(byNewest);
+    const shortIds = new Set(shorts.map((item) => item.id));
+    const latest = yt.find((item) => !shortIds.has(item.id)) || yt[0] || null;
+    if (latestRoot) {
+      latestRoot.replaceChildren(latest ? clipCard(latest) : emptyLine("No YouTube video is saved yet."));
+    }
+    if (shortsRoot) {
+      if (shorts.length) shortsRoot.replaceChildren(...shorts.slice(0, 4).map(clipCard));
+      else shortsRoot.replaceChildren(emptyLine("No Shorts are saved yet."));
+    }
     if (home) renderHomeClips(home, [...yt, ...tw].sort(byNewest).slice(0, 3));
     if (youtube) renderClipList(youtube, yt.slice(0, 6), "youtube");
     if (twitch) renderClipList(twitch, tw.slice(0, 6), "twitch");
@@ -530,12 +569,47 @@ async function clipsTask() {
   }
 }
 
+function renderKit(kit, config) {
+  const root = document.getElementById("media-kit");
+  if (!root || !kit) return;
+  const list = document.createElement("ul");
+  list.className = "stats";
+  const handles = config && config.handles && typeof config.handles === "object" ? config.handles : {};
+  const labels = { twitch: "Twitch", instagram: "Instagram", tiktok: "TikTok", youtube: "YouTube", x: "X" };
+  for (const [name, handle] of Object.entries(handles)) {
+    if (typeof handle !== "string" || !handle.trim()) continue;
+    const item = document.createElement("li");
+    item.textContent = `${labels[name] || name}: ${handle.trim()}`;
+    list.append(item);
+  }
+  for (const stat of kit.stats || []) {
+    if (!stat || typeof stat.label !== "string" || typeof stat.value !== "string") continue;
+    const item = document.createElement("li");
+    item.className = "placeholder";
+    item.textContent = `${stat.label}: ${stat.value}`;
+    list.append(item);
+  }
+  if (list.childElementCount) root.replaceChildren(list);
+}
+
 async function sponsorsTask() {
-  if (!document.getElementById("sponsor-list")) return;
+  const kitRoot = document.getElementById("media-kit");
+  if (document.getElementById("sponsor-list")) {
+    try {
+      renderSponsors(await loadJson("/data/sponsors.json"));
+    } catch {
+      // The empty state in the HTML stays in place.
+    }
+  }
+  if (!kitRoot) return;
   try {
-    renderSponsors(await loadJson("/data/sponsors.json"));
+    const [kit, config] = await Promise.all([
+      loadJson("/data/kit.json"),
+      loadJson("/data/site.json").catch(() => null)
+    ]);
+    renderKit(kit, config);
   } catch {
-    // The empty state in the HTML stays in place.
+    // The placeholder copy in the HTML stays in place.
   }
 }
 

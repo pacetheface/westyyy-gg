@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self'; connect-src 'self'; media-src 'self'; frame-src https://www.youtube-nocookie.com https://clips.twitch.tv https://player.twitch.tv">
   <title>westyyy</title>
-  <meta name="description" content="westyyy is a 10-year-old Rocket League player from Germany. Schedule, clips, setup, and links for the father-son channel.">
+  <meta name="description" content="10-year-old Rocket League player from Germany, chasing pro. Grand Champ at 9.">
   <link rel="canonical" href="https://westyyy.gg/">
   <meta name="author" content="westyyy">
   <meta name="theme-color" content="#0B1411">
@@ -15,7 +15,7 @@
   <meta property="og:type" content="website">
   <meta property="og:locale" content="en_US">
   <meta property="og:title" content="westyyy">
-  <meta property="og:description" content="westyyy is a 10-year-old Rocket League player from Germany. Schedule, clips, setup, and links for the father-son channel.">
+  <meta property="og:description" content="10-year-old Rocket League player from Germany, chasing pro. Grand Champ at 9.">
   <meta property="og:url" content="https://westyyy.gg/">
   <meta property="og:image" content="https://westyyy.gg/assets/og.png">
   <meta property="og:image:type" content="image/png">
@@ -24,7 +24,7 @@
   <meta property="og:image:alt" content="westyyy in off-white type on a near-black field.">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="westyyy">
-  <meta name="twitter:description" content="westyyy is a 10-year-old Rocket League player from Germany. Schedule, clips, setup, and links for the father-son channel.">
+  <meta name="twitter:description" content="10-year-old Rocket League player from Germany, chasing pro. Grand Champ at 9.">
   <meta name="twitter:image" content="https://westyyy.gg/assets/og.png">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32">
@@ -55,41 +55,83 @@
     </div>
     <hr class="rule">
     <div class="wrap hero-copy">
-      <p class="lede">A 10-year-old Rocket League player from <span class="nowrap">Germany <span class="flag" aria-hidden="true">🇩🇪</span>.</span> The channel is a father-son project, and only westyyy and his dad are on camera.</p>
+      <p class="headline">10-year-old Rocket League player from Germany <span role="img" aria-label="Germany">🇩🇪</span>, chasing pro.</p>
+      <ul class="stats">
+        <li>Grand Champ at 9</li>
+        <li>Peak 1s: C1 (1000)</li>
+        <li>Peak 2s: GC1 (1500+)</li>
+      </ul>
+      <p class="cta">Catch the streams on Twitch and the clips everywhere else.</p>
       <div id="live-badge" class="live-row" aria-live="polite"></div>
-      <noscript>
-        <p>JavaScript is off, so the live badge stays hidden. The schedule and the links below still open.</p>
-      </noscript>
+      <p><a class="button watch" href="https://twitch.tv/westyyy__rl">Watch on Twitch</a></p>
+      <ul class="icon-row">
+        <li>
+          <a class="icon-link" href="https://instagram.com/westyyy__rl" aria-label="Instagram">
+            <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4.5" y="4.5" width="15" height="15" rx="4"/><circle cx="12" cy="12" r="3.4"/><circle cx="16.6" cy="7.5" r="0.8" fill="currentColor" stroke="none"/></svg>
+          </a>
+        </li>
+        <li>
+          <a class="icon-link" href="https://www.tiktok.com/@westyyy__rl" aria-label="TikTok">
+            <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 6.2c.7 1.8 2.1 3 4 3.3"/><path d="M14 6v8.2a3.6 3.6 0 1 1-3.6-3.6"/></svg>
+          </a>
+        </li>
+        <li>
+          <a class="icon-link" href="https://www.youtube.com/@westyyy__rl" aria-label="YouTube">
+            <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3.5" y="7" width="17" height="10.5" rx="3"/><path d="M11 10.2v4.1l3.6-2.05L11 10.2Z" fill="currentColor" stroke="none"/></svg>
+          </a>
+        </li>
+        <li>
+          <a class="icon-link" href="https://x.com/westyyy__rl" aria-label="X">
+            <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6.5 6.5 17.5 17.5M17.5 6.5 6.5 17.5"/></svg>
+          </a>
+        </li>
+      </ul>
+      <div id="live-player"></div>
     </div>
   </header>
   <main id="content" tabindex="-1">
-    <section class="band band-orange" aria-labelledby="next-heading">
-      <div class="wrap">
-        <h2 id="next-heading">Next stream</h2>
-        <div id="next-stream">
-          <p>Times are listed on the schedule.</p>
-        </div>
-        <p><a class="inline-link" href="/schedule/">Full schedule</a></p>
-      </div>
-    </section>
     <section class="section" aria-labelledby="latest-heading">
       <div class="wrap">
-        <h2 id="latest-heading">Latest</h2>
-        <div id="home-clips" class="clip-grid">
-          <p class="empty">Latest videos show up here after they are saved. The channels are on the links page.</p>
+        <h2 id="latest-heading">Latest video</h2>
+        <div id="latest-youtube" class="feature-video">
+          <p class="empty">The latest video shows up here after it is saved.</p>
         </div>
       </div>
     </section>
-    <section class="section" aria-labelledby="links-heading">
+    <section class="section" aria-labelledby="shorts-heading">
       <div class="wrap">
-        <h2 id="links-heading">Links</h2>
-        <ul class="quick-links">
-          <li><a href="https://twitch.tv/westyyy__rl">Twitch</a></li>
-          <li><a href="https://www.youtube.com/@westyyywest">YouTube</a></li>
-          <li><a href="https://www.tiktok.com/@westyyywest">TikTok</a></li>
-          <li><a href="https://www.instagram.com/westyyywest">Instagram</a></li>
-          <li><a class="is-accent" href="/links/">All links</a></li>
-        </ul>
+        <h2 id="shorts-heading">Shorts</h2>
+        <div id="shorts-row" class="clip-grid">
+          <p class="empty">Shorts show up here after they are saved.</p>
+        </div>
+      </div>
+    </section>
+    <section id="schedule-section" class="section" hidden aria-labelledby="schedule-heading">
+      <div class="wrap">
+        <h2 id="schedule-heading">Schedule</h2>
+        <p class="zone-note">Times are written in Europe/Berlin and shown in your time zone.</p>
+        <div id="next-stream"></div>
+      </div>
+    </section>
+    <section class="section" aria-labelledby="work-heading">
+      <div class="wrap">
+        <h2 id="work-heading">Work with westyyy</h2>
+        <p class="lede">A mention during a stream, a link on this site, and a short clip on the social channels.</p>
+        <div id="media-kit">
+          <ul class="stats">
+            <li>Twitch: westyyy__rl</li>
+            <li>YouTube: westyyy__rl</li>
+            <li>TikTok: westyyy__rl</li>
+            <li>Instagram: westyyy__rl</li>
+            <li>X: westyyy__rl</li>
+            <li class="placeholder">Twitch followers: [TO FILL]</li>
+            <li class="placeholder">YouTube subscribers: [TO FILL]</li>
+            <li class="placeholder">TikTok followers: [TO FILL]</li>
+            <li class="placeholder">Instagram followers: [TO FILL]</li>
+            <li class="placeholder">X followers: [TO FILL]</li>
+          </ul>
+        </div>
+        <p><a class="keep-case" href="mailto:dad@westyyy.gg">dad@westyyy.gg</a></p>
       </div>
     </section>
   </main>

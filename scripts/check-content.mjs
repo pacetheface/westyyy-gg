@@ -81,9 +81,12 @@ for (const relative of files) {
 if (existsSync(join(root, "CNAME"))) fail("CNAME must not be added");
 
 const about = await readFile(join(root, "about/index.html"), "utf8");
-if (!about.includes("1s Champion 1 (1000 MMR)")) fail("about page is missing the 1s rank line");
-if (!about.includes("2s Grand Champion 1 (1500+ MMR)")) fail("about page is missing the 2s rank line");
+const home = await readFile(join(root, "index.html"), "utf8");
+for (const line of ["Peak 1s: C1 (1000)", "Peak 2s: GC1 (1500+)", "Grand Champ at 9"]) {
+  if (!home.includes(line) || !about.includes(line)) fail(`missing rank line: ${line}`);
+}
 if (!about.includes("free agent")) fail("about page should say free agent");
+if (home.includes("westyyywest") || about.includes("westyyywest")) fail("old handle is still on a page");
 
 const config = JSON.parse(await readFile(join(root, "data/site.json"), "utf8"));
 if (config.businessEmail !== "dad@westyyy.gg") fail("business email config drifted");

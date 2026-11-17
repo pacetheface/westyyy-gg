@@ -96,13 +96,8 @@ async function saveThumb(url, filename) {
   return `/assets/thumbs/${filename}`;
 }
 
-export async function fetchYouTube(channelId) {
-  if (!/^UC[A-Za-z0-9_-]{22}$/.test(channelId)) {
-    throw new Error("youtubeChannelId is missing or not a channel id.");
-  }
-  const response = await fetchWithTimeout(
-    `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`
-  );
+async function fetchFeed(url, limit) {
+  const response = await fetchWithTimeout(url);
   if (!response.ok) throw new Error(`YouTube RSS failed (${response.status}).`);
   const xml = await response.text();
   const entries = xml.match(/<entry>[\s\S]*?<\/entry>/g) || [];
@@ -126,10 +121,30 @@ export async function fetchYouTube(channelId) {
       publishedAt: publishedAt.toISOString(),
       thumbnail
     });
-    if (videos.length === 6) break;
+    if (videos.length === limit) break;
   }
   videos.sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt));
   return videos;
+}
+
+export async function fetchYouTube(channelId) {
+  if (!/^UC[A-Za-z0-9_-]{22}$/.test(channelId)) {
+    throw new Error("youtubeChannelId is missing or not a channel id.");
+  }
+  const uploads = await fetchFeed(
+    `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`,
+    6
+  );
+  let shorts = [];
+  try {
+    shorts = await fetchFeed(
+      `https://www.youtube.com/feeds/videos.xml?playlist_id=UUSH${channelId.slice(2)}`,
+      4
+    );
+  } catch (error) {
+    log(`Shorts feed skipped: ${error.message}`);
+  }
+  return { uploads, shorts };
 }
 
 function twitchThumb(url) {
@@ -222,7 +237,7 @@ async function fetchTwitch(login, clientId, token) {
 
 async function pruneThumbs(clips) {
   const keep = new Set([".gitkeep"]);
-  for (const item of [...(clips.youtube || []), ...(clips.twitch || [])]) {
+  for (const item of [...(clips.youtube || []), ...(clips.shorts || []), ...(clips.twitch || [])]) {
     if (typeof item.thumbnail === "string" && item.thumbnail.startsWith("/assets/thumbs/")) {
       keep.add(item.thumbnail.slice("/assets/thumbs/".length));
     }
@@ -234,11 +249,6 @@ async function pruneThumbs(clips) {
 async function main() {
   const clientId = process.env.TWITCH_CLIENT_ID || "";
   const clientSecret = process.env.TWITCH_CLIENT_SECRET || "";
-  if (!clientId || !clientSecret) {
-    log("Twitch secrets are not set. Leaving data/live.json and data/clips.json unchanged.");
-    return;
-  }
-
   const config = await readJson(join(root, "data", "site.json"));
   const login = config.twitchLogin;
   const channelId = config.youtubeChannelId;
@@ -250,20 +260,27 @@ async function main() {
   let live = null;
   let twitchClips = null;
   let youtube = null;
+  let shorts = null;
   let twitchError = null;
   let youtubeError = null;
 
-  try {
-    const token = await twitchToken(clientId, clientSecret);
-    const twitch = await fetchTwitch(login, clientId, token);
-    live = twitch.live;
-    twitchClips = twitch.clips;
-  } catch (error) {
-    twitchError = error;
+  if (!clientId || !clientSecret) {
+    log("Twitch secrets are not set. Live status stays on Watch on Twitch.");
+  } else {
+    try {
+      const token = await twitchToken(clientId, clientSecret);
+      const twitch = await fetchTwitch(login, clientId, token);
+      live = twitch.live;
+      twitchClips = twitch.clips;
+    } catch (error) {
+      twitchError = error;
+    }
   }
 
   try {
-    youtube = await fetchYouTube(channelId);
+    const bundle = await fetchYouTube(channelId);
+    youtube = bundle.uploads;
+    shorts = bundle.shorts;
   } catch (error) {
     youtubeError = error;
   }
@@ -279,16 +296,17 @@ async function main() {
 
   const clips = {
     youtube: youtube || previousClips.youtube || [],
+    shorts: shorts || previousClips.shorts || [],
     twitch: twitchClips || previousClips.twitch || []
   };
 
   const liveChanged = live ? await writeIfChanged(join(root, "data", "live.json"), live) : false;
   const clipsChanged = await writeIfChanged(join(root, "data", "clips.json"), clips);
-  if (youtube && twitchClips) await pruneThumbs(clips);
+  if (youtube && shorts && twitchClips) await pruneThumbs(clips);
 
   log(
     `Live: ${live && live.live ? "yes" : live ? "no" : "unchanged"}. ` +
-    `YouTube: ${clips.youtube.length}. Twitch clips: ${clips.twitch.length}. ` +
+    `YouTube: ${clips.youtube.length}. Shorts: ${clips.shorts.length}. Twitch clips: ${clips.twitch.length}. ` +
     `${liveChanged || clipsChanged ? "Wrote updated data." : "No change in live or clip data."}`
   );
 }

@@ -21,7 +21,7 @@ Edit `data/schedule.json`. Refresh the page. There is no build.
 - `oneOff` is one civil date, `YYYY-MM-DD`, with the same kind of start and end. A date that has already ended is hidden.
 - `title` is the line on the schedule.
 
-The JSON in the repo is a starter week. Replace it with the real slots before treating it as the public calendar.
+Leave `weekly` and `oneOff` as empty arrays until the real times are known. An empty file hides the schedule on the site. Times are wall-clock times in Europe/Berlin.
 
 ## Sponsors
 
@@ -34,8 +34,9 @@ The JSON in the repo is a starter week. Replace it with the real slots before tr
 - `businessEmail` is `dad@westyyy.gg`. It is used for partnerships and for the Impressum.
 - `impressumName` is `[NAME]` and `impressumAddress` is `[ADDRESS]` until the real details are ready.
 - `discordInvite` is empty, so the links page says the Discord is coming soon. Set an `https://discord.gg/...` or `https://discord.com/...` URL when the invite exists. `discordName` is `w for westyyy`.
-- `youtubeChannelId` is the channel behind `@westyyywest`.
+- `youtubeChannelId` is the channel behind `@westyyy__rl`.
 - `twitchLogin` is `westyyy__rl`.
+- `handles` lists the public profile names. TikTok, YouTube, X, Twitch, and Instagram are all `westyyy__rl`.
 
 The same email and placeholders are also written into the HTML so the legal pages still read with JavaScript off. If you change the email or the placeholders, update `data/site.json` and the matching text in `impressum/index.html` and `sponsors/index.html`.
 
@@ -54,7 +55,9 @@ Repository secrets, under Settings → Secrets and variables → Actions:
 
 Create them in the Twitch developer console for an application that can use the client-credentials grant. No user token is required.
 
-If either secret is missing, `scripts/update-live-data.mjs` exits successfully and leaves the JSON files as they are. The site then keeps showing the offline state, the schedule, and the links. It does not show a live-badge failure.
+If either secret is missing, the script skips Twitch and leaves `data/live.json` offline. The page keeps the Watch on Twitch button and does not show a live badge. YouTube videos and Shorts still update from the public RSS feeds, which do not need a key.
+
+`data/kit.json` holds partnership lines and follower placeholders. Replace each `[TO FILL]` value when the number is known. Do not invent counts.
 
 The workflow commits only when the live fields, the clip list, or a thumbnail actually change. A new timestamp alone does not create a commit. While a stream is live, the viewer count can change often enough to commit on later runs.
 
@@ -92,7 +95,7 @@ Forest green and mandarin sit in the glows, not in solid page blocks. Crest yell
 - Write westyyy in lowercase, including at the start of a sentence and in titles.
 - Do not add a surname, a town, a place of education, a phone number, or a personal inbox. The Impressum placeholders are the exception for the name and the street address. The only email is `dad@westyyy.gg`.
 - Do not name an organisation he plays for. He is a free agent.
-- Keep the rank lines exactly as they are on the about page: `1s Champion 1 (1000 MMR)` and `2s Grand Champion 1 (1500+ MMR)`.
+- Keep the rank lines exactly as `Grand Champ at 9`, `Peak 1s: C1 (1000)`, and `Peak 2s: GC1 (1500+)`.
 - The German flag is the only flag, and it is only used where the country is stated.
 - Do not add a CNAME file, and do not turn on GitHub Pages from this repo until the owners ask.
 
